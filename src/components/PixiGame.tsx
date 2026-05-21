@@ -23,6 +23,8 @@ export const PixiGame = (props: {
   width: number;
   height: number;
   setSelectedElement: SelectElement;
+  onHover?: (name: string, model: string, screenX: number, screenY: number) => void;
+  onHoverEnd?: () => void;
 }) => {
   // PIXI setup.
   const pixiApp = useApp();
@@ -54,7 +56,7 @@ export const PixiGame = (props: {
       const [dx, dy] = [screenX - e.screenX, screenY - e.screenY];
       const dist = Math.sqrt(dx * dx + dy * dy);
       if (dist > 10) {
-        console.log(`Skipping navigation on drag event (${dist}px)`);
+        console.log(`跳过拖拽导航（${dist}px）`);
         return;
       }
     }
@@ -76,7 +78,7 @@ export const PixiGame = (props: {
       x: Math.floor(gameSpaceTiles.x),
       y: Math.floor(gameSpaceTiles.y),
     };
-    console.log(`Moving to ${JSON.stringify(roundedTiles)}`);
+    console.log(`正在移动到：${JSON.stringify(roundedTiles)}`);
     await toastOnError(moveTo({ playerId: humanPlayerId, destination: roundedTiles }));
   };
   const { width, height, tileDim } = props.game.worldMap;
@@ -122,6 +124,8 @@ export const PixiGame = (props: {
           player={p}
           isViewer={p.id === humanPlayerId}
           onClick={props.setSelectedElement}
+          onHover={props.onHover}
+          onHoverEnd={props.onHoverEnd}
           historicalTime={props.historicalTime}
         />
       ))}

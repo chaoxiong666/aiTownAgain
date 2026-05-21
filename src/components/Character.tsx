@@ -16,6 +16,8 @@ export const Character = ({
   isViewer = false,
   speed = 0.1,
   onClick,
+  onPointerOver,
+  onPointerOut,
 }: {
   // Path to the texture packed image.
   textureUrl: string;
@@ -36,6 +38,8 @@ export const Character = ({
   // The speed of the animation. Can be tuned depending on the side and speed of the NPC.
   speed?: number;
   onClick: () => void;
+  onPointerOver?: (e: PIXI.FederatedPointerEvent) => void;
+  onPointerOut?: (e: PIXI.FederatedPointerEvent) => void;
 }) => {
   const [spriteSheet, setSpriteSheet] = useState<Spritesheet>();
   useEffect(() => {
@@ -84,7 +88,7 @@ export const Character = ({
   }
 
   return (
-    <Container x={x} y={y} interactive={true} pointerdown={onClick} cursor="pointer">
+    <Container x={x} y={y} interactive={true} pointerdown={onClick} pointerover={onPointerOver} pointerout={onPointerOut} cursor="pointer">
       {isThinking && (
         // TODO: We'll eventually have separate assets for thinking and speech animations.
         <Text x={-20} y={-10} scale={{ x: -0.8, y: 0.8 }} text={'💭'} anchor={{ x: 0.5, y: 0.5 }} />

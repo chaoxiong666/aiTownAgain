@@ -53,10 +53,10 @@ export default function InteractButton() {
       return;
     }
     if (isPlaying) {
-      console.log(`Leaving game for player ${userPlayerId}`);
+      console.log(`正在离开游戏，玩家：${userPlayerId}`);
       void leave({ worldId });
     } else {
-      console.log(`Joining game`);
+      console.log('正在加入游戏');
       void joinInput(worldId);
     }
   };
@@ -69,7 +69,7 @@ export default function InteractButton() {
   // }
   return (
     <Button imgUrl={interactImg} onClick={joinOrLeaveGame}>
-      {isPlaying ? 'Leave' : 'Interact'}
+      {isPlaying ? '离开' : '互动'}
     </Button>
   );
 }

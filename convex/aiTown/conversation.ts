@@ -51,7 +51,7 @@ export class Conversation {
       delete this.isTyping;
     }
     if (this.participants.size !== 2) {
-      console.warn(`Conversation ${this.id} has ${this.participants.size} participants`);
+      console.warn(`对话 ${this.id} 参与者数量异常：${this.participants.size}`);
       return;
     }
     const [playerId1, playerId2] = [...this.participants.keys()];
@@ -67,7 +67,7 @@ export class Conversation {
     // of them to "participating" and stop their paths.
     if (member1.status.kind === 'walkingOver' && member2.status.kind === 'walkingOver') {
       if (playerDistance < CONVERSATION_DISTANCE) {
-        console.log(`Starting conversation between ${player1.id} and ${player2.id}`);
+        console.log(`对话开始：${player1.id} 与 ${player2.id}`);
 
         // First, stop the two players from moving.
         stopPlayer(player1);
@@ -135,7 +135,7 @@ export class Conversation {
       return { error: reason };
     }
     const conversationId = game.allocId('conversations');
-    console.log(`Creating conversation ${conversationId}`);
+    console.log(`正在创建对话：${conversationId}`);
     game.world.conversations.set(
       conversationId,
       new Conversation({
@@ -266,7 +266,7 @@ export const conversationInputs = {
       if (!invitee) {
         throw new Error(`Invalid player ID: ${inviteeId}`);
       }
-      console.log(`Starting ${playerId} ${inviteeId}...`);
+      console.log(`正在发起对话：${playerId} ${inviteeId}...`);
       const { conversationId, error } = Conversation.start(game, now, player, invitee);
       if (!conversationId) {
         // TODO: pass it back to the client for them to show an error.
@@ -390,6 +390,48 @@ export const conversationInputs = {
       }
       conversation.leave(game, now, player);
       return null;
+    },
+  }),
+
+  forceConversation: inputHandler({
+    args: {
+      playerId,
+      invitee: playerId,
+    },
+    handler: (game: Game, now: number, args): GameId<'conversations'> => {
+      const playerA = game.world.players.get(parseGameId('players', args.playerId));
+      const playerB = game.world.players.get(parseGameId('players', args.invitee));
+      if (!playerA) {
+        throw new Error(`Player not found: ${args.playerId}`);
+      }
+      if (!playerB) {
+        throw new Error(`Player not found: ${args.invitee}`);
+      }
+      if (playerA.id === playerB.id) {
+        throw new Error(`不能撮合同一个 NPC`);
+      }
+
+      // 如果任一 NPC 正在对话中，先强制结束那些对话
+      const toStop = new Set(
+        [...game.world.conversations.values()].filter(
+          (c) => c.participants.has(playerA.id) || c.participants.has(playerB.id),
+        ),
+      );
+      for (const conv of toStop) {
+        conv.stop(game, now);
+      }
+
+      // 中断当前寻路
+      if (playerA.pathfinding) delete playerA.pathfinding;
+      if (playerB.pathfinding) delete playerB.pathfinding;
+
+      // 创建新对话
+      const { conversationId, error } = Conversation.start(game, now, playerA, playerB);
+      if (!conversationId) {
+        throw new Error(error);
+      }
+      console.log(`手动撮合：${playerA.id} 与 ${playerB.id}，对话 ID：${conversationId}`);
+      return conversationId;
     },
   }),
 };

@@ -101,7 +101,7 @@ export class Player {
 
     // Stop pathfinding if we've timed out.
     if (pathfinding.started + PATHFINDING_TIMEOUT < now) {
-      console.warn(`Timing out pathfinding for ${this.id}`);
+      console.warn(`寻路超时：${this.id}`);
       stopPlayer(this);
     }
 

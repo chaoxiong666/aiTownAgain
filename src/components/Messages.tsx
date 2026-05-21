@@ -72,7 +72,7 @@ export function Messages({
     const node = (
       <div key={`text-${m._id}`} className="leading-tight mb-6">
         <div className="flex gap-4">
-          <span className="uppercase flex-grow">{m.authorName}</span>
+          <span className="flex-grow">{m.authorName}</span>
           <time dateTime={m._creationTime.toString()}>
             {new Date(m._creationTime).toLocaleString()}
           </time>
@@ -141,7 +141,7 @@ export function Messages({
         {currentlyTyping && currentlyTyping.playerId !== humanPlayerId && (
           <div key="typing" className="leading-tight mb-6">
             <div className="flex gap-4">
-              <span className="uppercase flex-grow">{currentlyTypingName}</span>
+              <span className="flex-grow">{currentlyTypingName}</span>
               <time dateTime={currentlyTyping.since.toString()}>
                 {new Date(currentlyTyping.since).toLocaleString()}
               </time>

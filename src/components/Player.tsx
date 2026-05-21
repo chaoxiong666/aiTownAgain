@@ -20,6 +20,8 @@ export const Player = ({
   isViewer,
   player,
   onClick,
+  onHover,
+  onHoverEnd,
   historicalTime,
 }: {
   game: ServerGame;
@@ -27,6 +29,8 @@ export const Player = ({
   player: ServerPlayer;
 
   onClick: SelectElement;
+  onHover?: (name: string, model: string, screenX: number, screenY: number) => void;
+  onHoverEnd?: () => void;
   historicalTime?: number;
 }) => {
   const playerCharacter = game.playerDescriptions.get(player.id)?.character;
@@ -64,6 +68,18 @@ export const Player = ({
     );
   const tileDim = game.worldMap.tileDim;
   const historicalFacing = { dx: historicalLocation.dx, dy: historicalLocation.dy };
+
+  // hover tooltip helpers
+  const npcName = game.playerDescriptions.get(player.id)?.name ?? '未知';
+  const npcModel = [...game.world.agents.values()].find((a) => a.playerId === player.id)?.modelName ?? '默认';
+
+  const handlePointerOver = (e: any) => {
+    onHover?.(npcName, npcModel, e.screenX, e.screenY);
+  };
+  const handlePointerOut = () => {
+    onHoverEnd?.();
+  };
+
   return (
     <>
       <Character
@@ -85,6 +101,8 @@ export const Player = ({
         onClick={() => {
           onClick({ kind: 'player', id: player.id });
         }}
+        onPointerOver={handlePointerOver}
+        onPointerOut={handlePointerOut}
       />
     </>
   );

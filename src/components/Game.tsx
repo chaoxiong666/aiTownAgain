@@ -11,6 +11,8 @@ import { useHistoricalTime } from '../hooks/useHistoricalTime.ts';
 import { DebugTimeManager } from './DebugTimeManager.tsx';
 import { GameId } from '../../convex/aiTown/ids.ts';
 import { useServerGame } from '../hooks/serverGame.ts';
+import ForceConversation from './ForceConversation.tsx';
+import NPCModelTooltip from './NPCModelTooltip.tsx';
 
 export const SHOW_DEBUG_UI = !!import.meta.env.VITE_SHOW_DEBUG_UI;
 
@@ -36,6 +38,18 @@ export default function Game() {
 
   const scrollViewRef = useRef<HTMLDivElement>(null);
 
+  // Tooltip state for NPC hover
+  const [tooltip, setTooltip] = useState<{
+    visible: boolean; x: number; y: number; name: string; model: string;
+  } | null>(null);
+
+  const handleHover = (name: string, model: string, screenX: number, screenY: number) => {
+    setTooltip({ visible: true, x: screenX, y: screenY, name, model });
+  };
+  const handleHoverEnd = () => {
+    setTooltip(null);
+  };
+
   if (!worldId || !engineId || !game) {
     return null;
   }
@@ -59,6 +73,8 @@ https://github.com/michalochman/react-pixi-fiber/issues/145#issuecomment-5315492
                     height={height}
                     historicalTime={historicalTime}
                     setSelectedElement={setSelectedElement}
+                    onHover={handleHover}
+                    onHoverEnd={handleHoverEnd}
                   />
                 </ConvexProvider>
               </Stage>
@@ -78,8 +94,11 @@ https://github.com/michalochman/react-pixi-fiber/issues/145#issuecomment-5315492
             setSelectedElement={setSelectedElement}
             scrollViewRef={scrollViewRef}
           />
+          <hr className="my-4 border-brown-700" />
+          <ForceConversation worldId={worldId} engineId={engineId} />
         </div>
       </div>
+      <NPCModelTooltip data={tooltip} />
     </>
   );
 }
